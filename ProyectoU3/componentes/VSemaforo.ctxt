@@ -1,0 +1,21 @@
+#BlueJ class context
+comment0.target=VSemaforo
+comment1.params=
+comment1.target=VSemaforo()
+comment2.params=
+comment2.target=int\ getAncho()
+comment3.params=
+comment3.target=int\ getAlto()
+comment4.params=
+comment4.target=java.lang.String\ getEstado()
+comment5.params=estado
+comment5.target=void\ setEstado(java.lang.String)
+comment6.params=x\ y
+comment6.target=void\ setPosicion(int,\ int)
+comment7.params=x\ y\ ancho\ alto
+comment7.target=void\ setPosicion(int,\ int,\ int,\ int)
+comment8.params=ancho\ alto
+comment8.target=void\ setTamano(int,\ int)
+comment9.params=g
+comment9.target=void\ paintComponent(java.awt.Graphics)
+numComments=10

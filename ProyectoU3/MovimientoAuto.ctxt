@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=MovimientoAuto
+comment1.params=controlador\ calle\ destino
+comment1.target=MovimientoAuto(ControladorCruce,\ int,\ java.lang.String)
+comment2.params=
+comment2.target=void\ run()
+comment3.params=
+comment3.target=void\ dormir()
+numComments=4

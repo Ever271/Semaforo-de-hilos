@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=Cruce
+comment1.params=
+comment1.target=Cruce()
+comment10.params=oeste
+comment10.target=void\ setOeste(java.util.ArrayList)
+comment11.params=semaforos
+comment11.target=void\ setSemaforos(java.util.ArrayList)
+comment2.params=
+comment2.target=java.util.ArrayList\ getNorte()
+comment3.params=
+comment3.target=java.util.ArrayList\ getSur()
+comment4.params=
+comment4.target=java.util.ArrayList\ getEste()
+comment5.params=
+comment5.target=java.util.ArrayList\ getOeste()
+comment6.params=
+comment6.target=java.util.ArrayList\ getSemaforos()
+comment7.params=norte
+comment7.target=void\ setNorte(java.util.ArrayList)
+comment8.params=sur
+comment8.target=void\ setSur(java.util.ArrayList)
+comment9.params=este
+comment9.target=void\ setEste(java.util.ArrayList)
+numComments=12

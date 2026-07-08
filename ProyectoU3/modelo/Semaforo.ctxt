@@ -1,0 +1,21 @@
+#BlueJ class context
+comment0.target=Semaforo
+comment1.params=
+comment1.target=Semaforo()
+comment2.params=
+comment2.target=java.lang.String\ getEstado()
+comment3.params=
+comment3.target=int\ getTiempo()
+comment4.params=
+comment4.target=int\ getCalle()
+comment5.params=estado
+comment5.target=void\ setEstado(java.lang.String)
+comment6.params=tiempo
+comment6.target=void\ setTiempo(int)
+comment7.params=calle
+comment7.target=void\ setCalle(int)
+comment8.params=lista
+comment8.target=void\ crear(java.util.ArrayList)
+comment9.params=lista
+comment9.target=java.util.ArrayList\ ver(java.util.ArrayList)
+numComments=10
