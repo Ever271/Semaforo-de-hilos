@@ -1,5 +1,3 @@
- 
-
 public class MovimientoAuto implements Runnable {
     private ControladorCruce controlador;
     private int calle;
