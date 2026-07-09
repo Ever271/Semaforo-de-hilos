@@ -1,10 +1,10 @@
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
@@ -51,10 +51,11 @@ public class VPrincipal extends JFrame {
     private void configurarVentana() {
         setTitle("Simulación de Cruce Vehicular");
         setSize(ANCHO_BASE, ALTO_BASE);
+        setMinimumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
-        setMinimumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
+        setLayout(new BorderLayout());
     }
 
     private void configurarToolTips() {
@@ -63,6 +64,13 @@ public class VPrincipal extends JFrame {
     }
 
     private void crearPanelCruce() {
+        // Contenedor externo que mantendrá el cruce centrado
+        JPanel contenedor = new JPanel(new GridBagLayout());
+        
+        // ¡Truco visual! El fondo del contenedor ahora es el mismo verde que el pasto
+        contenedor.setBackground(COLOR_PASTO); 
+
+        // El panel del cruce vuelve a tener tamaños fijos y estables
         panelCruce = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -73,16 +81,14 @@ public class VPrincipal extends JFrame {
 
         panelCruce.setLayout(null);
         panelCruce.setBackground(COLOR_PASTO);
+        
+        // Forzamos a que el lienzo mantenga siempre la proporción perfecta de 900x650
+        panelCruce.setPreferredSize(new Dimension(ANCHO_BASE, ALTO_BASE));
+        panelCruce.setMinimumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
+        panelCruce.setMaximumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
 
-        panelCruce.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                redimensionarElementos();
-                panelCruce.repaint();
-            }
-        });
-
-        setContentPane(panelCruce);
+        contenedor.add(panelCruce);
+        setContentPane(contenedor);
     }
 
     private void dibujarCruce(Graphics g) {
@@ -90,7 +96,7 @@ public class VPrincipal extends JFrame {
 
         int ancho = panelCruce.getWidth();
         int alto = panelCruce.getHeight();
-        int anchoCalle = escalarTamano(ANCHO_CALLE_BASE);
+        int anchoCalle = ANCHO_CALLE_BASE;
 
         int xVertical = (ancho - anchoCalle) / 2;
         int yHorizontal = (alto - anchoCalle) / 2;
@@ -114,9 +120,9 @@ public class VPrincipal extends JFrame {
                                         int xVertical, int yHorizontal, int centroX, int centroY) {
 
         g2.setColor(COLOR_LINEA_AMARILLA);
-        g2.setStroke(new BasicStroke(Math.max(2, escalarTamano(2))));
+        g2.setStroke(new BasicStroke(2));
 
-        int separacionLinea = escalarTamano(4);
+        int separacionLinea = 4;
 
         g2.drawLine(centroX - separacionLinea, 0, centroX - separacionLinea, yHorizontal);
         g2.drawLine(centroX + separacionLinea, 0, centroX + separacionLinea, yHorizontal);
@@ -134,21 +140,21 @@ public class VPrincipal extends JFrame {
     private void dibujarCrucesPeatonales(Graphics2D g2, int anchoCalle, int xVertical, int yHorizontal) {
         g2.setColor(COLOR_LINEA_BLANCA);
 
-        int grosorFranja = escalarTamano(16);
-        int separacion = escalarTamano(6);
+        int grosorFranja = 16;
+        int separacion = 6;
         int cantidadFranjas = 10;
-        int largoCruce = escalarTamano(65);
+        int largoCruce = 65;
 
-        dibujarCebraHorizontal(g2, xVertical + escalarTamano(6), yHorizontal - largoCruce,
+        dibujarCebraHorizontal(g2, xVertical + 6, yHorizontal - largoCruce,
                 grosorFranja, largoCruce, separacion, cantidadFranjas);
 
-        dibujarCebraHorizontal(g2, xVertical + escalarTamano(6), yHorizontal + anchoCalle,
+        dibujarCebraHorizontal(g2, xVertical + 6, yHorizontal + anchoCalle,
                 grosorFranja, largoCruce, separacion, cantidadFranjas);
 
-        dibujarCebraVertical(g2, xVertical - largoCruce, yHorizontal + escalarTamano(6),
+        dibujarCebraVertical(g2, xVertical - largoCruce, yHorizontal + 6,
                 largoCruce, grosorFranja, separacion, cantidadFranjas);
 
-        dibujarCebraVertical(g2, xVertical + anchoCalle, yHorizontal + escalarTamano(6),
+        dibujarCebraVertical(g2, xVertical + anchoCalle, yHorizontal + 6,
                 largoCruce, grosorFranja, separacion, cantidadFranjas);
     }
 
@@ -172,18 +178,18 @@ public class VPrincipal extends JFrame {
 
     private void dibujarFlechas(Graphics2D g2, int centroX, int centroY) {
         g2.setColor(Color.WHITE);
-        g2.setStroke(new BasicStroke(Math.max(3, escalarTamano(4))));
+        g2.setStroke(new BasicStroke(4));
 
-        dibujarFlechaArriba(g2, centroX + escalarTamano(95), escalarY(95));
-        dibujarFlechaAbajo(g2, centroX - escalarTamano(80), escalarY(545));
-        dibujarFlechaIzquierda(g2, escalarX(160), centroY - escalarTamano(70));
-        dibujarFlechaDerecha(g2, escalarX(760), centroY + escalarTamano(65));
+        dibujarFlechaArriba(g2, centroX + 95, 95);
+        dibujarFlechaAbajo(g2, centroX - 80, 545);
+        dibujarFlechaIzquierda(g2, 160, centroY - 70);
+        dibujarFlechaDerecha(g2, 760, centroY + 65);
     }
 
     private void dibujarFlechaArriba(Graphics2D g2, int x, int y) {
-        int largo = escalarTamano(45);
-        int punta = escalarTamano(14);
-        int baja = escalarTamano(18);
+        int largo = 45;
+        int punta = 14;
+        int baja = 18;
 
         g2.drawLine(x, y + largo, x, y);
         g2.drawLine(x, y, x - punta, y + baja);
@@ -191,9 +197,9 @@ public class VPrincipal extends JFrame {
     }
 
     private void dibujarFlechaAbajo(Graphics2D g2, int x, int y) {
-        int largo = escalarTamano(45);
-        int punta = escalarTamano(14);
-        int sube = escalarTamano(18);
+        int largo = 45;
+        int punta = 14;
+        int sube = 18;
 
         g2.drawLine(x, y - largo, x, y);
         g2.drawLine(x, y, x - punta, y - sube);
@@ -201,9 +207,9 @@ public class VPrincipal extends JFrame {
     }
 
     private void dibujarFlechaIzquierda(Graphics2D g2, int x, int y) {
-        int largo = escalarTamano(55);
-        int puntaX = escalarTamano(18);
-        int puntaY = escalarTamano(14);
+        int largo = 55;
+        int puntaX = 18;
+        int puntaY = 14;
 
         g2.drawLine(x + largo, y, x, y);
         g2.drawLine(x, y, x + puntaX, y - puntaY);
@@ -211,9 +217,9 @@ public class VPrincipal extends JFrame {
     }
 
     private void dibujarFlechaDerecha(Graphics2D g2, int x, int y) {
-        int largo = escalarTamano(55);
-        int puntaX = escalarTamano(18);
-        int puntaY = escalarTamano(14);
+        int largo = 55;
+        int puntaX = 18;
+        int puntaY = 14;
 
         g2.drawLine(x - largo, y, x, y);
         g2.drawLine(x, y, x - puntaX, y - puntaY);
@@ -232,36 +238,10 @@ public class VPrincipal extends JFrame {
     }
 
     private void posicionarSemaforos() {
-        int anchoSemaforo = escalarTamano(35);
-        int altoSemaforo = escalarTamano(95);
-
-        semaforoNorte.setPosicion(
-                escalarX(500),
-                escalarY(70),
-                anchoSemaforo,
-                altoSemaforo
-        );
-
-        semaforoSur.setPosicion(
-                escalarX(370),
-                escalarY(445),
-                anchoSemaforo,
-                altoSemaforo
-        );
-
-        semaforoEste.setPosicion(
-                escalarX(760),
-                escalarY(310),
-                anchoSemaforo,
-                altoSemaforo
-        );
-
-        semaforoOeste.setPosicion(
-                escalarX(95),
-                escalarY(210),
-                anchoSemaforo,
-                altoSemaforo
-        );
+        semaforoNorte.setPosicion(500, 70, 35, 95);
+        semaforoSur.setPosicion(370, 445, 35, 95);
+        semaforoEste.setPosicion(760, 310, 35, 95);
+        semaforoOeste.setPosicion(95, 210, 35, 95);
     }
 
     private void configurarEstadosInicialesSemaforos() {
@@ -304,12 +284,12 @@ public class VPrincipal extends JFrame {
 
     private void crearAutosSur() {
         int x = 490;
-        int yCercaCruce = 435;
+        int yCruceCerca = 435;
         int separacion = 60;
 
         for (int i = 0; i < 3; i++) {
             autosSur[i] = crearAuto(colorPorIndice(i), VAuto.SUR, x,
-                    yCercaCruce + (i * separacion), 35, 55);
+                    yCruceCerca + (i * separacion), 35, 55);
             panelCruce.add(autosSur[i]);
         }
     }
@@ -342,65 +322,9 @@ public class VPrincipal extends JFrame {
         VAuto auto = new VAuto();
         auto.setColor(color);
         auto.setDireccion(direccion);
-        auto.setPosicion(
-                escalarX(x),
-                escalarY(y),
-                escalarTamano(ancho),
-                escalarTamano(alto)
-        );
+        auto.setPosicion(x, y, ancho, alto);
         agregarEventoAuto(auto);
         return auto;
-    }
-
-    private void redimensionarElementos() {
-        if (autosNorte == null || autosSur == null || autosEste == null || autosOeste == null) {
-            return;
-        }
-
-        posicionarSemaforos();
-
-        redimensionarAuto(autosNorte[0], 360, 120, 35, 55);
-        redimensionarAuto(autosNorte[1], 360, 60, 35, 55);
-        redimensionarAuto(autosNorte[2], 360, 0, 35, 55);
-
-        redimensionarAuto(autosSur[0], 490, 435, 35, 55);
-        redimensionarAuto(autosSur[1], 490, 495, 35, 55);
-        redimensionarAuto(autosSur[2], 490, 555, 35, 55);
-
-        redimensionarAuto(autosEste[0], 570, 230, 55, 35);
-        redimensionarAuto(autosEste[1], 630, 230, 55, 35);
-        redimensionarAuto(autosEste[2], 690, 230, 55, 35);
-
-        redimensionarAuto(autosOeste[0], 255, 350, 55, 35);
-        redimensionarAuto(autosOeste[1], 195, 350, 55, 35);
-        redimensionarAuto(autosOeste[2], 135, 350, 55, 35);
-    }
-
-    private void redimensionarAuto(VAuto auto, int x, int y, int ancho, int alto) {
-        if (auto != null) {
-            auto.setPosicion(
-                    escalarX(x),
-                    escalarY(y),
-                    escalarTamano(ancho),
-                    escalarTamano(alto)
-            );
-        }
-    }
-
-    private int escalarX(int valor) {
-        return valor * panelCruce.getWidth() / ANCHO_BASE;
-    }
-
-    private int escalarY(int valor) {
-        return valor * panelCruce.getHeight() / ALTO_BASE;
-    }
-
-    private int escalarTamano(int valor) {
-        int escalaX = panelCruce.getWidth() * 100 / ANCHO_BASE;
-        int escalaY = panelCruce.getHeight() * 100 / ALTO_BASE;
-        int escala = Math.min(escalaX, escalaY);
-
-        return valor * escala / 100;
     }
 
     private String colorPorIndice(int indice) {
@@ -436,41 +360,15 @@ public class VPrincipal extends JFrame {
         }
     }
 
-    public VAuto[] getAutosNorte() {
-        return autosNorte;
-    }
-
-    public VAuto[] getAutosSur() {
-        return autosSur;
-    }
-
-    public VAuto[] getAutosEste() {
-        return autosEste;
-    }
-
-    public VAuto[] getAutosOeste() {
-        return autosOeste;
-    }
-
-    public VSemaforo getSemaforoNorte() {
-        return semaforoNorte;
-    }
-
-    public VSemaforo getSemaforoSur() {
-        return semaforoSur;
-    }
-
-    public VSemaforo getSemaforoEste() {
-        return semaforoEste;
-    }
-
-    public VSemaforo getSemaforoOeste() {
-        return semaforoOeste;
-    }
-
-    public ControladorCruce getControlador() {
-        return controlador;
-    }
+    public VAuto[] getAutosNorte() { return autosNorte; }
+    public VAuto[] getAutosSur() { return autosSur; }
+    public VAuto[] getAutosEste() { return autosEste; }
+    public VAuto[] getAutosOeste() { return autosOeste; }
+    public VSemaforo getSemaforoNorte() { return semaforoNorte; }
+    public VSemaforo getSemaforoSur() { return semaforoSur; }
+    public VSemaforo getSemaforoEste() { return semaforoEste; }
+    public VSemaforo getSemaforoOeste() { return semaforoOeste; }
+    public ControladorCruce getControlador() { return controlador; }
 
     public static void main(String[] args) {
         VPrincipal ventana = new VPrincipal();
