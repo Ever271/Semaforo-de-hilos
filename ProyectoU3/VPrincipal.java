@@ -21,7 +21,8 @@ public class VPrincipal extends JFrame {
     private static final int ANCHO_CALLE_BASE = 260;
 
     private JPanel panelCruce;
-
+    private int anchoAnterior = 0;
+    private int altoAnterior = 0;
     private VAuto[] autosNorte;
     private VAuto[] autosSur;
     private VAuto[] autosEste;
@@ -46,6 +47,15 @@ public class VPrincipal extends JFrame {
         crearSemaforos();
         crearAutos();
         controlador = new ControladorCruce(this);
+        panelCruce.addComponentListener(new java.awt.event.ComponentAdapter() {
+                @Override
+                public void componentResized(
+                        java.awt.event.ComponentEvent e) {
+        
+                    acomodarComponentesAlRedimensionar();
+                }
+            }
+        );
     }
 
     private void configurarVentana() {
@@ -64,50 +74,47 @@ public class VPrincipal extends JFrame {
     }
 
     private void crearPanelCruce() {
-        // Contenedor externo que mantendrá el cruce centrado
-        JPanel contenedor = new JPanel(new GridBagLayout());
-        
-        // ¡Truco visual! El fondo del contenedor ahora es el mismo verde que el pasto
-        contenedor.setBackground(COLOR_PASTO); 
-
-        // El panel del cruce vuelve a tener tamaños fijos y estables
-        panelCruce = new JPanel() {
+        panelCruce = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 dibujarCruce(g);
             }
         };
-
-        panelCruce.setLayout(null);
         panelCruce.setBackground(COLOR_PASTO);
-        
-        // Forzamos a que el lienzo mantenga siempre la proporción perfecta de 900x650
-        panelCruce.setPreferredSize(new Dimension(ANCHO_BASE, ALTO_BASE));
-        panelCruce.setMinimumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
-        panelCruce.setMaximumSize(new Dimension(ANCHO_BASE, ALTO_BASE));
-
-        contenedor.add(panelCruce);
-        setContentPane(contenedor);
+        add(panelCruce, BorderLayout.CENTER);
     }
 
     private void dibujarCruce(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-
         int ancho = panelCruce.getWidth();
         int alto = panelCruce.getHeight();
+    
         int anchoCalle = ANCHO_CALLE_BASE;
-
+    
         int xVertical = (ancho - anchoCalle) / 2;
         int yHorizontal = (alto - anchoCalle) / 2;
-
+    
         int centroX = ancho / 2;
         int centroY = alto / 2;
+    
+        dibujarCalles(g2,ancho,alto,anchoCalle,xVertical,yHorizontal);
+        dibujarLineasAmarillas(g2,ancho,alto,anchoCalle,xVertical,yHorizontal,centroX,centroY);
+    
+        Graphics2D gComponentes =(Graphics2D) g2.create();
+    
+        int desplazamientoX =(ancho - ANCHO_BASE) / 2;
+        int desplazamientoY =(alto - ALTO_BASE) / 2;
+    
+        gComponentes.translate(desplazamientoX,desplazamientoY);
 
-        dibujarCalles(g2, ancho, alto, anchoCalle, xVertical, yHorizontal);
-        dibujarLineasAmarillas(g2, ancho, alto, anchoCalle, xVertical, yHorizontal, centroX, centroY);
-        dibujarCrucesPeatonales(g2, anchoCalle, xVertical, yHorizontal);
-        dibujarFlechas(g2, centroX, centroY);
+        int xVerticalBase =(ANCHO_BASE - ANCHO_CALLE_BASE) / 2;
+        int yHorizontalBase =(ALTO_BASE - ANCHO_CALLE_BASE) / 2;
+    
+        dibujarCrucesPeatonales(gComponentes,ANCHO_CALLE_BASE,xVerticalBase,yHorizontalBase);
+        dibujarFlechas(gComponentes,ANCHO_BASE / 2,ALTO_BASE / 2);
+    
+        gComponentes.dispose();
     }
 
     private void dibujarCalles(Graphics2D g2, int ancho, int alto, int anchoCalle, int xVertical, int yHorizontal) {
@@ -374,5 +381,56 @@ public class VPrincipal extends JFrame {
         VPrincipal ventana = new VPrincipal();
         ventana.setVisible(true);
         ventana.getControlador().iniciarHilos();
+    }
+    
+    private void acomodarComponentesAlRedimensionar() {
+        int anchoActual = panelCruce.getWidth();
+        int altoActual = panelCruce.getHeight();
+        if (anchoAnterior == 0 || altoAnterior == 0) {
+            anchoAnterior = anchoActual;
+            altoAnterior = altoActual;
+            return;
+        }
+    
+        int movimientoX = (anchoActual - anchoAnterior) / 2;
+        int movimientoY = (altoActual - altoAnterior) / 2;
+    
+        if (movimientoX == 0 && movimientoY == 0) {
+            return;
+        }
+    
+        moverAutos(autosNorte, movimientoX, movimientoY);
+        moverAutos(autosSur, movimientoX, movimientoY);
+        moverAutos(autosEste, movimientoX, movimientoY);
+        moverAutos(autosOeste, movimientoX, movimientoY);
+    
+        moverComponente(semaforoNorte, movimientoX, movimientoY);
+        moverComponente(semaforoSur, movimientoX, movimientoY);
+        moverComponente(semaforoEste, movimientoX, movimientoY);
+        moverComponente(semaforoOeste, movimientoX, movimientoY);
+    
+        anchoAnterior = anchoActual;
+        altoAnterior = altoActual;
+    }
+    private void moverAutos(VAuto[] autos,int movimientoX,int movimientoY) {
+        if (autos == null) {
+            return;
+        }
+        for (VAuto auto : autos) {
+            if (auto != null) {
+                moverComponente(
+                    auto,
+                    movimientoX,
+                    movimientoY
+                );
+            }
+        }
+    }
+    private void moverComponente(java.awt.Component componente,int movimientoX,int movimientoY) {
+        if (componente == null) {
+            return;
+        }
+    
+        componente.setLocation(componente.getX() + movimientoX,componente.getY() + movimientoY);
     }
 }

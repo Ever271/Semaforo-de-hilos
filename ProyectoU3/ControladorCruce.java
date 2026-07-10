@@ -136,35 +136,34 @@ public class ControladorCruce {
 
     private void iniciarCicloSemaforos() {
         Thread hiloSemaforos = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        int calleActual = Auto.CALLE_NORTE;
-
-                        while (true) {
-
-                            cambiarSemaforos(calleActual);
-
-                            System.out.println(
-                                "\n========== SEMAFORO VERDE: "
-                                + nombreCalle(calleActual)
-                                + " =========="
-                            );
-
-                            dormirSemaforo(10000);
-
-                            calleActual++;
-
-                            if (calleActual > Auto.CALLE_OESTE) {
-                                calleActual = Auto.CALLE_NORTE;
-                            }
-                        }
+            @Override
+            public void run() {
+    
+                int calleActual = Auto.CALLE_NORTE;
+    
+                while (true) {
+    
+                    cambiarSemaforos(calleActual);
+    
+                    System.out.println(
+                        "\n========== SEMAFORO VERDE: "
+                        + nombreCalle(calleActual)
+                        + " =========="
+                    );
+    
+                    dormirSemaforo(10000);
+    
+                    calleActual++;
+    
+                    if (calleActual > Auto.CALLE_OESTE) {
+                        calleActual = Auto.CALLE_NORTE;
                     }
-                });
+                }
+            }
+        });
 
-                hiloSemaforos.setName("CONTROL-SEMAFOROS");
-
-                hiloSemaforos.start();
+        hiloSemaforos.setName("CONTROL-SEMAFOROS");
+        hiloSemaforos.start();
     }
 
     private String nombreCalle(int calle) {
@@ -533,7 +532,7 @@ public class ControladorCruce {
     }
 
     private void moverFrente(VAuto autoVisual, int calle) {
-        int pasos = 700;
+        int pasos = 900;
         for (int i = 0; i < pasos; i++) {
 
             switch (calle) {
@@ -574,7 +573,7 @@ public class ControladorCruce {
     private void moverDerecha(VAuto autoVisual, int calle) {
 
         int pasosAntesGiro = 100;
-        int pasosDespuesGiro = 550;
+        int pasosDespuesGiro = 800;
 
         for (int i = 0; i < pasosAntesGiro; i++) {
 
@@ -720,8 +719,6 @@ public class ControladorCruce {
         }
     }
 
-    //
-
     private void moverSuave(VAuto auto,
     int destinoX,
     int destinoY) {
@@ -746,7 +743,7 @@ public class ControladorCruce {
 
             auto.setLocation(x, y);
 
-            dormirMovimiento(2);
+            dormirMovimiento(1);
         }
     }
 
