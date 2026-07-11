@@ -11,18 +11,16 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
 
-import componentes.VAuto;
-import componentes.VSemaforo;
-
 public class VPrincipal extends JFrame {
-
     private static final int ANCHO_BASE = 900;
     private static final int ALTO_BASE = 650;
     private static final int ANCHO_CALLE_BASE = 260;
 
     private JPanel panelCruce;
+    
     private int anchoAnterior = 0;
     private int altoAnterior = 0;
+    
     private VAuto[] autosNorte;
     private VAuto[] autosSur;
     private VAuto[] autosEste;
@@ -51,7 +49,7 @@ public class VPrincipal extends JFrame {
                 @Override
                 public void componentResized(
                         java.awt.event.ComponentEvent e) {
-        
+    
                     acomodarComponentesAlRedimensionar();
                 }
             }
@@ -110,10 +108,8 @@ public class VPrincipal extends JFrame {
 
         int xVerticalBase =(ANCHO_BASE - ANCHO_CALLE_BASE) / 2;
         int yHorizontalBase =(ALTO_BASE - ANCHO_CALLE_BASE) / 2;
-    
-        dibujarCrucesPeatonales(gComponentes,ANCHO_CALLE_BASE,xVerticalBase,yHorizontalBase);
+
         dibujarFlechas(gComponentes,ANCHO_BASE / 2,ALTO_BASE / 2);
-    
         gComponentes.dispose();
     }
 
@@ -125,7 +121,6 @@ public class VPrincipal extends JFrame {
 
     private void dibujarLineasAmarillas(Graphics2D g2, int ancho, int alto, int anchoCalle,
                                         int xVertical, int yHorizontal, int centroX, int centroY) {
-
         g2.setColor(COLOR_LINEA_AMARILLA);
         g2.setStroke(new BasicStroke(2));
 
@@ -144,44 +139,6 @@ public class VPrincipal extends JFrame {
         g2.drawLine(xVertical + anchoCalle, centroY + separacionLinea, ancho, centroY + separacionLinea);
     }
 
-    private void dibujarCrucesPeatonales(Graphics2D g2, int anchoCalle, int xVertical, int yHorizontal) {
-        g2.setColor(COLOR_LINEA_BLANCA);
-
-        int grosorFranja = 16;
-        int separacion = 6;
-        int cantidadFranjas = 10;
-        int largoCruce = 65;
-
-        dibujarCebraHorizontal(g2, xVertical + 6, yHorizontal - largoCruce,
-                grosorFranja, largoCruce, separacion, cantidadFranjas);
-
-        dibujarCebraHorizontal(g2, xVertical + 6, yHorizontal + anchoCalle,
-                grosorFranja, largoCruce, separacion, cantidadFranjas);
-
-        dibujarCebraVertical(g2, xVertical - largoCruce, yHorizontal + 6,
-                largoCruce, grosorFranja, separacion, cantidadFranjas);
-
-        dibujarCebraVertical(g2, xVertical + anchoCalle, yHorizontal + 6,
-                largoCruce, grosorFranja, separacion, cantidadFranjas);
-    }
-
-    private void dibujarCebraHorizontal(Graphics2D g2, int x, int y, int anchoFranja,
-                                        int altoFranja, int separacion, int cantidadFranjas) {
-
-        for (int i = 0; i < cantidadFranjas; i++) {
-            int posicionX = x + (i * (anchoFranja + separacion));
-            g2.fillRect(posicionX, y, anchoFranja, altoFranja);
-        }
-    }
-
-    private void dibujarCebraVertical(Graphics2D g2, int x, int y, int anchoFranja,
-                                      int altoFranja, int separacion, int cantidadFranjas) {
-
-        for (int i = 0; i < cantidadFranjas; i++) {
-            int posicionY = y + (i * (altoFranja + separacion));
-            g2.fillRect(x, posicionY, anchoFranja, altoFranja);
-        }
-    }
 
     private void dibujarFlechas(Graphics2D g2, int centroX, int centroY) {
         g2.setColor(Color.WHITE);
@@ -319,8 +276,7 @@ public class VPrincipal extends JFrame {
         int separacion = 60;
 
         for (int i = 0; i < 3; i++) {
-            autosOeste[i] = crearAuto(colorPorIndice(i), VAuto.OESTE,
-                    xCercaCruce - (i * separacion), y, 55, 35);
+            autosOeste[i] = crearAuto(colorPorIndice(i), VAuto.OESTE,xCercaCruce - (i * separacion), y, 55, 35);
             panelCruce.add(autosOeste[i]);
         }
     }
@@ -391,10 +347,8 @@ public class VPrincipal extends JFrame {
             altoAnterior = altoActual;
             return;
         }
-    
         int movimientoX = (anchoActual - anchoAnterior) / 2;
         int movimientoY = (altoActual - altoAnterior) / 2;
-    
         if (movimientoX == 0 && movimientoY == 0) {
             return;
         }
@@ -412,6 +366,7 @@ public class VPrincipal extends JFrame {
         anchoAnterior = anchoActual;
         altoAnterior = altoActual;
     }
+    
     private void moverAutos(VAuto[] autos,int movimientoX,int movimientoY) {
         if (autos == null) {
             return;
@@ -426,11 +381,11 @@ public class VPrincipal extends JFrame {
             }
         }
     }
+    
     private void moverComponente(java.awt.Component componente,int movimientoX,int movimientoY) {
         if (componente == null) {
             return;
         }
-    
         componente.setLocation(componente.getX() + movimientoX,componente.getY() + movimientoY);
     }
 }

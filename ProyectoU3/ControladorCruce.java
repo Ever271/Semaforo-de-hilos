@@ -3,8 +3,6 @@ import java.util.Random;
 import modelo.Auto;
 import modelo.Cruce;
 import modelo.Semaforo;
-import componentes.VAuto;
-import componentes.VSemaforo;
 public class ControladorCruce {
     private VPrincipal vista;
     private Cruce cruce;
@@ -138,30 +136,20 @@ public class ControladorCruce {
         Thread hiloSemaforos = new Thread(new Runnable() {
             @Override
             public void run() {
-    
                 int calleActual = Auto.CALLE_NORTE;
-    
                 while (true) {
-    
                     cambiarSemaforos(calleActual);
-    
-                    System.out.println(
-                        "\n========== SEMAFORO VERDE: "
-                        + nombreCalle(calleActual)
-                        + " =========="
-                    );
-    
-                    dormirSemaforo(10000);
-    
+                    System.out.println("\n========== SEMAFORO VERDE: " + nombreCalle(calleActual)+ " ==========");
+                    dormirSemaforo(6000);
+                    ponerAmarillo(calleActual);
+                    dormirSemaforo(4000);
                     calleActual++;
-    
                     if (calleActual > Auto.CALLE_OESTE) {
                         calleActual = Auto.CALLE_NORTE;
                     }
                 }
             }
         });
-
         hiloSemaforos.setName("CONTROL-SEMAFOROS");
         hiloSemaforos.start();
     }
@@ -170,31 +158,22 @@ public class ControladorCruce {
         switch (calle) {
             case Auto.CALLE_NORTE:
                 return "NORTE";
-
             case Auto.CALLE_SUR:
                 return "SUR";
-
             case Auto.CALLE_ESTE:
                 return "ESTE";
-
             case Auto.CALLE_OESTE:
                 return "OESTE";
-
             default:
                 return "DESCONOCIDA";
         }
     }
 
     private void cambiarSemaforos(int calleVerde) {
-
         synchronized (controlTurnos) {
-
             autosPasadosTurno[calleVerde] = 0;
-
             for (int i = 0; i < cruce.getSemaforos().size(); i++) {
-
                 Semaforo semaforo = cruce.getSemaforos().get(i);
-
                 if (i == calleVerde) {
                     semaforo.setEstado(Semaforo.VERDE);
                 } else {
@@ -202,46 +181,56 @@ public class ControladorCruce {
                 }
             }
         }
-
         actualizarSemaforosVisuales();
+    }
+    
+    private void ponerAmarillo(int calle) {
+        synchronized (controlTurnos) {
+            cruce.getSemaforos().get(calle).setEstado(Semaforo.AMARILLO);
+        }
+        actualizarSemaforosVisuales();
+        System.out.println(
+            "========== SEMAFORO AMARILLO: "+ nombreCalle(calle)+ " ==========");
     }
 
     private void dormirSemaforo(int tiempo) {
-
         try {
-
             Thread.sleep(tiempo);
-
         } catch (InterruptedException e) {
-
             Thread.currentThread().interrupt();
         }
     }
 
     private void actualizarSemaforosVisuales() {
-
-        vista.getSemaforoSur().setEstado(
+        final String estadoNorte =
             cruce.getSemaforos()
-            .get(Auto.CALLE_NORTE)
-            .getEstado()
-        );
-
-        vista.getSemaforoNorte().setEstado(
+                 .get(Auto.CALLE_NORTE)
+                 .getEstado();
+    
+        final String estadoSur =
             cruce.getSemaforos()
-            .get(Auto.CALLE_SUR)
-            .getEstado()
-        );
-
-        vista.getSemaforoOeste().setEstado(
+                 .get(Auto.CALLE_SUR)
+                 .getEstado();
+    
+        final String estadoEste =
             cruce.getSemaforos()
-            .get(Auto.CALLE_ESTE)
-            .getEstado()
-        );
-
-        vista.getSemaforoEste().setEstado(
+                 .get(Auto.CALLE_ESTE)
+                 .getEstado();
+    
+        final String estadoOeste =
             cruce.getSemaforos()
-            .get(Auto.CALLE_OESTE)
-            .getEstado()
+                 .get(Auto.CALLE_OESTE)
+                 .getEstado();
+    
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    vista.getSemaforoSur().setEstado(estadoNorte);
+                    vista.getSemaforoNorte().setEstado(estadoSur);
+                    vista.getSemaforoOeste().setEstado(estadoEste);
+                    vista.getSemaforoEste().setEstado(estadoOeste);
+                }
+            }
         );
     }
 
@@ -261,15 +250,12 @@ public class ControladorCruce {
     }
 
     public void controlarMovimiento(int calle, String destino) {
-
         ArrayList<Auto> lista = obtenerListaCalle(calle);
-
         if (lista == null) {
             return;
         }
 
         synchronized (lista) {
-
             if (lista.isEmpty()) {
                 return;
             }
@@ -279,33 +265,24 @@ public class ControladorCruce {
                     return;
                 }
             }
-
             Auto auto = lista.get(0);
-
             if (!auto.getDestino().equals(destino)) {
                 return;
             }
-
-            if (!Semaforo.VERDE.equals(
-                cruce.getSemaforos().get(calle).getEstado())) {
+            String estadoSemaforo =cruce.getSemaforos().get(calle).getEstado();
+            if (Semaforo.ROJO.equals(estadoSemaforo)) {
                 return;
             }
-
             if (!auto.isDetenido()) {
                 return;
             }
-
             auto.setDetenido(false);
-
             VAuto[] autosVisuales = getAutosVista(calle);
-
             if (autosVisuales == null || autosVisuales.length < 3) {
                 auto.setDetenido(true);
                 return;
             }
-
             VAuto autoVisual = autosVisuales[0];
-
             System.out.println(
                 Thread.currentThread().getName()
                 + " inicia movimiento | Auto: "
@@ -332,7 +309,6 @@ public class ControladorCruce {
             autoQuePaso.setDetenido(true);
 
             lista.add(autoQuePaso);
-
             synchronized (controlTurnos) {
                 autosPasadosTurno[calle]++;
             }
@@ -346,11 +322,7 @@ public class ControladorCruce {
         }
     }
 
-    private void avanzarDosCarros(
-    VAuto primero,
-    VAuto segundo,
-    int calle) {
-
+    private void avanzarDosCarros(VAuto primero,VAuto segundo,int calle) {
         int xPrimero = primero.getX();
         int yPrimero = primero.getY();
 
@@ -358,175 +330,70 @@ public class ControladorCruce {
         int ySegundo = segundo.getY();
 
         int separacion = 60;
-
         switch (calle) {
-
             case Auto.CALLE_NORTE:
-
-                moverSuave(
-                    primero,
-                    xPrimero,
-                    yPrimero + separacion
-                );
-
-                moverSuave(
-                    segundo,
-                    xSegundo,
-                    ySegundo + separacion
-                );
-
+                moverSuave(primero,xPrimero,yPrimero + separacion);
+                moverSuave(segundo,xSegundo,ySegundo + separacion);
                 break;
 
             case Auto.CALLE_SUR:
-                moverSuave(
-                    primero,
-                    xPrimero,
-                    yPrimero - separacion
-                );
-
-                moverSuave(
-                    segundo,
-                    xSegundo,
-                    ySegundo - separacion
-                );
-
+                moverSuave(primero,xPrimero,yPrimero - separacion);
+                moverSuave(segundo,xSegundo,ySegundo - separacion);
                 break;
-
+                
             case Auto.CALLE_ESTE:
-                moverSuave(
-                    primero,
-                    xPrimero - separacion,
-                    yPrimero
-                );
-
-                moverSuave(
-                    segundo,
-                    xSegundo - separacion,
-                    ySegundo
-                );
-
+                moverSuave(primero,xPrimero - separacion,yPrimero);
+                moverSuave(segundo,xSegundo - separacion,ySegundo);
                 break;
 
             case Auto.CALLE_OESTE:
-                moverSuave(
-                    primero,
-                    xPrimero + separacion,
-                    yPrimero
-                );
-
-                moverSuave(
-                    segundo,
-                    xSegundo + separacion,
-                    ySegundo
-                );
-
+                moverSuave(primero,xPrimero + separacion,yPrimero);
+                moverSuave(segundo,xSegundo + separacion,ySegundo);
                 break;
         }
     }
 
-    private void colocarAlFinal(
-    VAuto autoQuePaso,
-    VAuto ultimoAuto,
-    int calle) {
-
+    private void colocarAlFinal(VAuto autoQuePaso,VAuto ultimoAuto,int calle) {
         int separacion = 60;
-
         int destinoX = 0;
         int destinoY = 0;
-
         switch (calle) {
 
             case Auto.CALLE_NORTE:
-
-                cambiarOrientacion(
-                    autoQuePaso,
-                    VAuto.NORTE,
-                    30,
-                    55
-                );
-
+                cambiarOrientacion(autoQuePaso,VAuto.NORTE,30,55);
                 destinoX = ultimoAuto.getX();
                 destinoY = ultimoAuto.getY() - separacion;
-
-                autoQuePaso.setLocation(
-                    destinoX,
-                    -autoQuePaso.getHeight()
-                );
-
+                autoQuePaso.setLocation(destinoX,-autoQuePaso.getHeight());
                 break;
 
             case Auto.CALLE_SUR:
-                cambiarOrientacion(
-                    autoQuePaso,
-                    VAuto.SUR,
-                    30,
-                    55
-                );
-
+                cambiarOrientacion(autoQuePaso,VAuto.SUR,30,55);
                 destinoX = ultimoAuto.getX();
                 destinoY = ultimoAuto.getY() + separacion;
-
-                autoQuePaso.setLocation(
-                    destinoX,
-                    vista.getHeight()
-                );
-
+                autoQuePaso.setLocation(destinoX,vista.getHeight());
                 break;
 
             case Auto.CALLE_ESTE:
-                cambiarOrientacion(
-                    autoQuePaso,
-                    VAuto.ESTE,
-                    55,
-                    30
-                );
-
+                cambiarOrientacion(autoQuePaso,VAuto.ESTE,55,30);
                 destinoX = ultimoAuto.getX() + separacion;
                 destinoY = ultimoAuto.getY();
-
-                autoQuePaso.setLocation(
-                    vista.getWidth(),
-                    destinoY
-                );
-
+                autoQuePaso.setLocation(vista.getWidth(),destinoY);
                 break;
 
             case Auto.CALLE_OESTE:
-                cambiarOrientacion(
-                    autoQuePaso,
-                    VAuto.OESTE,
-                    55,
-                    30
-                );
-
+                cambiarOrientacion(autoQuePaso,VAuto.OESTE,55,30);
                 destinoX = ultimoAuto.getX() - separacion;
                 destinoY = ultimoAuto.getY();
-
-                autoQuePaso.setLocation(
-                    -autoQuePaso.getWidth(),
-                    destinoY
-                );
-
+                autoQuePaso.setLocation(-autoQuePaso.getWidth(),destinoY);
                 break;
         }
-
-        moverSuave(
-            autoQuePaso,
-            destinoX,
-            destinoY
-        );
+        moverSuave(autoQuePaso,destinoX,destinoY);
     }
 
-    private void moverAutoVisual(VAuto autoVisual,
-    int calle,
-    String destino) {
-
+    private void moverAutoVisual(VAuto autoVisual,int calle,String destino) {
         if (Auto.FRENTE.equals(destino)) {
-
             moverFrente(autoVisual, calle);
-
         } else if (Auto.DERECHA.equals(destino)) {
-
             moverDerecha(autoVisual, calle);
         }
     }
@@ -534,184 +401,100 @@ public class ControladorCruce {
     private void moverFrente(VAuto autoVisual, int calle) {
         int pasos = 900;
         for (int i = 0; i < pasos; i++) {
-
             switch (calle) {
-
                 case Auto.CALLE_NORTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() + 1
-                    );
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() + 1);
                     break;
 
                 case Auto.CALLE_SUR:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() - 1
-                    );
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() - 1);
                     break;
 
                 case Auto.CALLE_ESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX() - 1,
-                        autoVisual.getY()
-                    );
+                    autoVisual.setLocation(autoVisual.getX() - 1,autoVisual.getY());
                     break;
 
                 case Auto.CALLE_OESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX() + 1,
-                        autoVisual.getY()
-                    );
+                    autoVisual.setLocation(autoVisual.getX() + 1,autoVisual.getY());
                     break;
             }
-
-            dormirMovimiento(3);
+            dormirMovimiento(2);
         }
     }
 
     private void moverDerecha(VAuto autoVisual, int calle) {
-
         int pasosAntesGiro = 100;
         int pasosDespuesGiro = 800;
-
         for (int i = 0; i < pasosAntesGiro; i++) {
-
             switch (calle) {
-
                 case Auto.CALLE_NORTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() + 1
-                    );
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() + 1);
                     break;
 
                 case Auto.CALLE_SUR:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() - 1
-                    );
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() - 1);
                     break;
 
                 case Auto.CALLE_ESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX() - 1,
-                        autoVisual.getY()
-                    );
+                    autoVisual.setLocation(autoVisual.getX() - 1,autoVisual.getY());
                     break;
 
                 case Auto.CALLE_OESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX() + 1,
-                        autoVisual.getY()
-                    );
+                    autoVisual.setLocation(autoVisual.getX() + 1,autoVisual.getY());
                     break;
             }
-
-            dormirMovimiento(3);
+            dormirMovimiento(2);
         }
 
         switch (calle) {
             case Auto.CALLE_NORTE:
-                cambiarOrientacion(
-                    autoVisual,
-                    VAuto.ESTE,
-                    55,
-                    30
-                );
+                cambiarOrientacion(autoVisual,VAuto.ESTE,55,30);
                 break;
 
             case Auto.CALLE_SUR:
-                cambiarOrientacion(
-                    autoVisual,
-                    VAuto.OESTE,
-                    55,
-                    30
-                );
+                cambiarOrientacion(autoVisual,VAuto.OESTE,55,30);
                 break;
 
             case Auto.CALLE_ESTE:
-                cambiarOrientacion(
-                    autoVisual,
-                    VAuto.SUR,
-                    30,
-                    55
-                );
+                cambiarOrientacion(autoVisual,VAuto.SUR,30,55);
                 break;
 
             case Auto.CALLE_OESTE:
-                cambiarOrientacion(
-                    autoVisual,
-                    VAuto.NORTE,
-                    30,
-                    55
-                );
+                cambiarOrientacion(autoVisual,VAuto.NORTE,30,55);
                 break;
         }
 
         for (int i = 0; i < pasosDespuesGiro; i++) {
-
             switch (calle) {
-
                 case Auto.CALLE_NORTE:
-
-                    autoVisual.setLocation(
-                        autoVisual.getX() - 1,
-                        autoVisual.getY()
-                    );
-
+                    autoVisual.setLocation(autoVisual.getX() - 1,autoVisual.getY());
                     break;
 
                 case Auto.CALLE_SUR:
-                    autoVisual.setLocation(
-                        autoVisual.getX() + 1,
-                        autoVisual.getY()
-                    );
-
+                    autoVisual.setLocation(autoVisual.getX() + 1,autoVisual.getY());
                     break;
 
                 case Auto.CALLE_ESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() - 1
-                    );
-
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() - 1);
                     break;
 
                 case Auto.CALLE_OESTE:
-                    autoVisual.setLocation(
-                        autoVisual.getX(),
-                        autoVisual.getY() + 1
-                    );
-
+                    autoVisual.setLocation(autoVisual.getX(),autoVisual.getY() + 1);
                     break;
             }
-
-            dormirMovimiento(5);
+            dormirMovimiento(2);
         }
     }
 
-    private void cambiarOrientacion(
-    VAuto auto,
-    String direccion,
-    int ancho,
-    int alto) {
-
+    private void cambiarOrientacion(VAuto auto,String direccion,int ancho,int alto) {
         int centroX = auto.getX() + auto.getWidth() / 2;
         int centroY = auto.getY() + auto.getHeight() / 2;
-
         auto.setTamano(ancho, alto);
-
         auto.setDireccion(direccion);
-
-        auto.setLocation(
-            centroX - ancho / 2,
-            centroY - alto / 2
-        );
+        auto.setLocation(centroX - ancho / 2,centroY - alto / 2);
     }
 
     private void dormirMovimiento(int tiempo) {
-
         try {
             Thread.sleep(tiempo);
         } catch (InterruptedException e) {
@@ -719,49 +502,35 @@ public class ControladorCruce {
         }
     }
 
-    private void moverSuave(VAuto auto,
-    int destinoX,
-    int destinoY) {
-
-        while (auto.getX() != destinoX
-        || auto.getY() != destinoY) {
-
+    private void moverSuave(VAuto auto,int destinoX,int destinoY) {
+        while (auto.getX() != destinoX || auto.getY() != destinoY) {
             int x = auto.getX();
             int y = auto.getY();
-
             if (x < destinoX) {
                 x++;
             } else if (x > destinoX) {
                 x--;
             }
-
             if (y < destinoY) {
                 y++;
             } else if (y > destinoY) {
                 y--;
             }
-
             auto.setLocation(x, y);
-
-            dormirMovimiento(1);
+            dormirMovimiento(2);
         }
     }
 
     public VAuto[] getAutosVista(int calle) {
         switch (calle) {
-
             case Auto.CALLE_NORTE:
                 return vista.getAutosNorte();
-
             case Auto.CALLE_SUR:
                 return vista.getAutosSur();
-
             case Auto.CALLE_ESTE:
                 return vista.getAutosEste();
-
             case Auto.CALLE_OESTE:
                 return vista.getAutosOeste();
-
             default:
                 return null;
         }
@@ -779,25 +548,18 @@ public class ControladorCruce {
     }
 
     public String obtenerInformacionAuto(VAuto autoVisual) {
-
         for (int calle = Auto.CALLE_NORTE; calle <= Auto.CALLE_OESTE; calle++) {
-
             VAuto[] autosVisuales = getAutosVista(calle);
             ArrayList<Auto> listaAutos = obtenerListaCalle(calle);
-
             if (autosVisuales == null || listaAutos == null) {
                 continue;
             }
 
             for (int i = 0; i < autosVisuales.length && i < listaAutos.size(); i++) {
-
                 if (autosVisuales[i] == autoVisual) {
-
                     Auto autoModelo = listaAutos.get(i);
-
                     String hiloAsociado = nombreHilo(calle, autoModelo.getDestino());
                     String hiloEjecutando;
-
                     if (!autoModelo.isDetenido() && i == 0) {
                         hiloEjecutando = hiloAsociado;
                     } else {
@@ -821,7 +583,6 @@ public class ControladorCruce {
                 }
             }
         }
-
         return "No se encontró información para este auto.";
     }
 

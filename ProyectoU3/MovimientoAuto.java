@@ -19,7 +19,7 @@ public class MovimientoAuto implements Runnable {
 
     private void dormir() {
         try {
-            Thread.sleep(70);
+            Thread.sleep(40);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Semaforo {
     public static final String ROJO = "ROJO";
     public static final String VERDE = "VERDE";
+    public static final String AMARILLO = "AMARILLO";
     private String estado;
     private int tiempo;
     private int calle;

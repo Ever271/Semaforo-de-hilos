@@ -1,4 +1,4 @@
-package componentes;
+package Componentes;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 public class VSemaforo extends JPanel implements Serializable {
     public static final String ROJO = "ROJO";
     public static final String VERDE = "VERDE";
+    public static final String AMARILLO = "AMARILLO";
 
     private String estado;
     private int ancho;
@@ -17,6 +18,7 @@ public class VSemaforo extends JPanel implements Serializable {
         estado = ROJO;
         ancho = 40;
         alto = 100;
+        
         setOpaque(false);
         setPreferredSize(new Dimension(ancho, alto));
         setSize(ancho, alto);
@@ -35,7 +37,7 @@ public class VSemaforo extends JPanel implements Serializable {
     }
     
     public void setEstado(String estado) {
-        if (!ROJO.equals(estado)&& !VERDE.equals(estado)) {
+        if (!ROJO.equals(estado)&& !AMARILLO.equals(estado)&& !VERDE.equals(estado)) {
             return;
         }
         this.estado = estado;
@@ -69,26 +71,75 @@ public class VSemaforo extends JPanel implements Serializable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+    
         int anchoActual = getWidth();
         int altoActual = getHeight();
+    
         g.setColor(Color.DARK_GRAY);
-        g.fillRoundRect(0,0,anchoActual,altoActual,10,10);
-        int diametro = Math.min(anchoActual - 10,(altoActual - 15) / 2);
+        g.fillRoundRect(
+            0,
+            0,
+            anchoActual,
+            altoActual,
+            10,
+            10
+        );
+    
+        int diametro = Math.min(
+            anchoActual - 10,
+            (altoActual - 20) / 3
+        );
+    
         int x = (anchoActual - diametro) / 2;
-        int espacio = (altoActual - (diametro * 2)) / 3;
+    
+        int espacio =
+            (altoActual - (diametro * 3)) / 4;
+    
         int yRojo = espacio;
-        int yVerde = yRojo + diametro + espacio;
+    
+        int yAmarillo =
+            yRojo + diametro + espacio;
+    
+        int yVerde =
+            yAmarillo + diametro + espacio;
+    
         if (ROJO.equals(estado)) {
             g.setColor(Color.RED);
         } else {
             g.setColor(Color.GRAY);
         }
-        g.fillOval( x,yRojo,diametro,diametro);
+    
+        g.fillOval(
+            x,
+            yRojo,
+            diametro,
+            diametro
+        );
+    
+        if (AMARILLO.equals(estado)) {
+            g.setColor(Color.YELLOW);
+        } else {
+            g.setColor(Color.GRAY);
+        }
+    
+        g.fillOval(
+            x,
+            yAmarillo,
+            diametro,
+            diametro
+        );
+    
         if (VERDE.equals(estado)) {
             g.setColor(Color.GREEN);
         } else {
             g.setColor(Color.GRAY);
         }
-        g.fillOval( x,yVerde,diametro,diametro);
+    
+        g.fillOval(
+            x,
+            yVerde,
+            diametro,
+            diametro
+        );
     }
 }

@@ -1,4 +1,4 @@
-package componentes;
+package Componentes;
 
 import java.awt.Image;
 import java.io.Serializable;
@@ -6,7 +6,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class VAuto extends JLabel implements Serializable {
-
     public static final String ROJO = "ROJO";
     public static final String AZUL = "AZUL";
     public static final String VERDE = "VERDE";
@@ -126,32 +125,19 @@ public class VAuto extends JLabel implements Serializable {
     
     private void actualizarImagen() {
         String archivo = "";
-
         if (color.equals(ROJO)) {
-
             archivo = "carroRojo";
-
         } else if (color.equals(AZUL)) {
-
             archivo = "carroAzul";
-
         } else if (color.equals(VERDE)) {
-
             archivo = "carroVerde";
-
         }
 
-        
         if (direccion.equals(NORTE)) {
-
             archivo += "Norte.png";
-
         } else if (direccion.equals(SUR)) {
-
             archivo += "Sur.png";
-
         } else if (direccion.equals(ESTE)) {
-
             archivo += "Este.png";
 
         } else if (direccion.equals(OESTE)) {
